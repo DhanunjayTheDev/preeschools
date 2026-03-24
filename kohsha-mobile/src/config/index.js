@@ -8,8 +8,8 @@ const ENV = {
     BASE_URL: 'https://staging-api.kohsha.com',
   },
   production: {
-    API_URL: 'https://api.kohsha.com/api',
-    BASE_URL: 'https://api.kohsha.com',
+    API_URL: 'https://preeschools.onrender.com/api',
+    BASE_URL: 'https://preeschools.onrender.com',
   },
 };
 
