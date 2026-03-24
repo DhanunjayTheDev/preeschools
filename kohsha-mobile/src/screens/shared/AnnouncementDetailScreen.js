@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ScrollView, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, Card, Badge, LoadingScreen, Divider } from '../../components/ui';
+import { LoadingScreen } from '../../components/ui';
 import api from '../../lib/api';
 
-export default function AnnouncementDetailScreen({ route }) {
+const typeConfig = {
+  GENERAL: { icon: 'megaphone', color: '#7c3aed', heroBg: '#7c3aed' },
+  EVENT: { icon: 'calendar', color: '#2563eb', heroBg: '#2563eb' },
+  HOLIDAY: { icon: 'sunny', color: '#ea580c', heroBg: '#ea580c' },
+  EMERGENCY: { icon: 'warning', color: '#dc2626', heroBg: '#dc2626' },
+};
+
+export default function AnnouncementDetailScreen({ route, navigation }) {
   const passedAnnouncement = route?.params?.announcement;
   const announcementId = route?.params?.announcementId || passedAnnouncement?._id;
   const [announcement, setAnnouncement] = useState(passedAnnouncement || null);
@@ -20,69 +28,84 @@ export default function AnnouncementDetailScreen({ route }) {
 
   if (loading) return <LoadingScreen />;
   if (!announcement) return (
-    <Screen><View className="flex-1 items-center justify-center"><Text>Announcement not found</Text></View></Screen>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8f7ff' }} edges={['top']}>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ color: '#6b7280' }}>Announcement not found</Text>
+      </View>
+    </SafeAreaView>
   );
 
-  const typeConfig = {
-    GENERAL: { icon: 'megaphone', color: '#7c3aed', bg: '#7c3aed15' },
-    EVENT: { icon: 'calendar', color: '#2563eb', bg: '#2563eb15' },
-    HOLIDAY: { icon: 'sunny', color: '#ea580c', bg: '#ea580c15' },
-    EMERGENCY: { icon: 'warning', color: '#dc2626', bg: '#dc262615' },
-  };
-
-  const config = typeConfig[announcement.type] || typeConfig.GENERAL;
+  const tc = typeConfig[announcement.type] || typeConfig.GENERAL;
 
   return (
-    <Screen scroll>
-      <View className="px-5 pt-4 pb-6">
-        {/* Type badge */}
-        <View className="flex-row items-center gap-2 mb-3">
-          <View className="w-9 h-9 rounded-full items-center justify-center" style={{ backgroundColor: config.bg }}>
-            <Ionicons name={config.icon} size={18} color={config.color} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: tc.heroBg }} edges={['top']}>
+      <StatusBar barStyle="light-content" backgroundColor={tc.heroBg} />
+
+      {/* Hero */}
+      <View style={{ backgroundColor: tc.heroBg, paddingHorizontal: 20, paddingTop: 14, paddingBottom: 30, overflow: 'hidden' }}>
+        <View style={{ position: 'absolute', top: -20, right: -10, width: 130, height: 130, borderRadius: 65, backgroundColor: 'rgba(255,255,255,0.07)' }} />
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+          <Ionicons name="arrow-back" size={22} color="#fff" />
+        </TouchableOpacity>
+        <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
+          <Ionicons name={tc.icon} size={22} color="#fff" />
+        </View>
+        <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', alignSelf: 'flex-start', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, marginBottom: 8 }}>
+          <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8 }}>{announcement.type}</Text>
+        </View>
+        <Text style={{ color: '#fff', fontSize: 20, fontWeight: '800', lineHeight: 26 }}>{announcement.title}</Text>
+        <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12, marginTop: 6 }}>
+          {new Date(announcement.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+        </Text>
+      </View>
+
+      <ScrollView style={{ flex: 1, backgroundColor: '#f8f7ff' }} contentContainerStyle={{ padding: 16, paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
+        {/* Message */}
+        <View style={{ backgroundColor: '#fff', borderRadius: 18, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+            <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: tc.heroBg + '18', alignItems: 'center', justifyContent: 'center', marginRight: 10 }}>
+              <Ionicons name="chatbubble-ellipses-outline" size={16} color={tc.color} />
+            </View>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#1f2937' }}>Message</Text>
           </View>
-          <Badge variant="primary">{announcement.type}</Badge>
+          <Text style={{ fontSize: 14, color: '#4b5563', lineHeight: 22 }}>{announcement.message}</Text>
         </View>
 
-        {/* Title */}
-        <Text className="text-xl font-bold text-gray-900 mb-1">{announcement.title}</Text>
-        <Text className="text-sm text-gray-500 mb-4">
-          {new Date(announcement.createdAt).toLocaleDateString('en-IN', {
-            day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
-          })}
-        </Text>
-
-        <Divider className="my-3" />
-
-        {/* Message */}
-        <Card className="mb-4">
-          <Text className="text-sm text-gray-700 leading-5">{announcement.message}</Text>
-        </Card>
-
-        {/* Target Info */}
+        {/* Audience */}
         {(announcement.targetClasses?.length > 0 || announcement.targetRole) && (
-          <Card className="mb-4">
-            <Text className="text-sm font-medium text-gray-700 mb-2">Target Audience</Text>
+          <View style={{ backgroundColor: '#fff', borderRadius: 18, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, elevation: 2 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+              <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: '#f3f4f6', alignItems: 'center', justifyContent: 'center', marginRight: 10 }}>
+                <Ionicons name="people-outline" size={16} color="#6b7280" />
+              </View>
+              <Text style={{ fontSize: 14, fontWeight: '700', color: '#1f2937' }}>Target Audience</Text>
+            </View>
             {announcement.targetRole && (
-              <View className="flex-row items-center mb-1">
-                <Ionicons name="people-outline" size={14} color="#6b7280" />
-                <Text className="text-sm text-gray-600 ml-2 capitalize">{announcement.targetRole}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                <Ionicons name="shield-checkmark-outline" size={14} color="#6b7280" />
+                <Text style={{ fontSize: 13, color: '#4b5563', marginLeft: 8, textTransform: 'capitalize' }}>{announcement.targetRole}</Text>
               </View>
             )}
             {announcement.targetClasses?.length > 0 && (
-              <View className="flex-row flex-wrap gap-1 mt-1">
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                 {announcement.targetClasses.map((cls, idx) => (
-                  <Badge key={idx} variant="secondary">{cls}</Badge>
+                  <View key={idx} style={{ backgroundColor: '#f3f4f6', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 5 }}>
+                    <Text style={{ fontSize: 12, color: '#374151', fontWeight: '500' }}>{cls}</Text>
+                  </View>
                 ))}
               </View>
             )}
-          </Card>
+          </View>
         )}
 
-        {/* Created by */}
+        {/* Footer */}
         {announcement.createdBy?.name && (
-          <Text className="text-xs text-gray-400 mt-2">Posted by: {announcement.createdBy.name}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 4 }}>
+            <Ionicons name="person-outline" size={12} color="#9ca3af" />
+            <Text style={{ fontSize: 11, color: '#9ca3af', marginLeft: 5 }}>Posted by {announcement.createdBy.name}</Text>
+          </View>
         )}
-      </View>
-    </Screen>
+      </ScrollView>
+    </SafeAreaView>
   );
 }

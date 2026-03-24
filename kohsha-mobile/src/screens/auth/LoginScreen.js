@@ -1,105 +1,179 @@
 import React, { useState } from 'react';
-import { View, Text, KeyboardAvoidingView, Platform, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, StatusBar, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Input, Button } from '../../components/ui';
 import useAuthStore from '../../stores/authStore';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
   const { login, loading, error, clearError } = useAuthStore();
 
   const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) return;
-    try {
-      await login(email.trim().toLowerCase(), password);
-    } catch {
-      // Error is handled in store
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Validation', 'Please enter email and password');
+      return;
+    }
+    try { 
+      await login(email.trim().toLowerCase(), password); 
+    } catch (err) {
+      console.error('Login error:', err);
     }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1"
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8f7ff' }} edges={['top']}>
+      <StatusBar barStyle="dark-content" backgroundColor="#f8f7ff" />
+      
+      <ScrollView 
+        contentContainerStyle={{ flexGrow: 1 }} 
+        showsVerticalScrollIndicator={false}
+        scrollEnabled={true}
+        nestedScrollEnabled={true}
       >
-        <View className="flex-1 justify-center px-6">
-          {/* Logo / Header */}
-          <View className="items-center mb-10">
-            <View className="w-20 h-20 rounded-2xl bg-primary-600 items-center justify-center mb-4 shadow-lg">
-              <Ionicons name="school" size={40} color="#fff" />
-            </View>
-            <Text className="text-3xl font-bold text-gray-900">Kohsha Academy</Text>
-            <Text className="text-base text-gray-500 mt-1">Welcome back!</Text>
+        {/* Header Section */}
+        <View style={{ paddingHorizontal: 20, paddingTop: 40, paddingBottom: 20, alignItems: 'center' }}>
+          <View style={{ width: 80, height: 80, borderRadius: 24, backgroundColor: '#7c3aed', alignItems: 'center', justifyContent: 'center', marginBottom: 20, shadowColor: '#7c3aed', shadowOpacity: 0.4, shadowRadius: 14, shadowOffset: { width: 0, height: 5 }, elevation: 8 }}>
+            <Ionicons name="school" size={40} color="#fff" />
           </View>
+          <Text style={{ fontSize: 26, fontWeight: '800', color: '#1f2937' }}>Kohsha Academy</Text>
+          <Text style={{ fontSize: 14, color: '#6b7280', marginTop: 8 }}>Parent & Teacher Portal</Text>
+        </View>
 
-          {/* Error message */}
+        {/* Form Section */}
+        <View style={{ paddingHorizontal: 20, paddingBottom: 40 }}>
+          
+          {/* Error Message */}
           {error && (
-            <View className="bg-red-50 border border-red-200 rounded-xl p-3 mb-4 flex-row items-center">
-              <Ionicons name="alert-circle" size={18} color="#ef4444" />
-              <Text className="text-red-600 text-sm ml-2 flex-1">{error}</Text>
-              <TouchableOpacity onPress={clearError}>
-                <Ionicons name="close" size={18} color="#ef4444" />
+            <View style={{ backgroundColor: '#fee2e2', borderLeftWidth: 4, borderLeftColor: '#ef4444', borderRadius: 12, padding: 14, marginBottom: 20, flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="alert-circle" size={20} color="#ef4444" />
+              <Text style={{ flex: 1, color: '#dc2626', fontSize: 13, marginLeft: 10, fontWeight: '500' }}>{error}</Text>
+              <TouchableOpacity onPress={clearError} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                <Ionicons name="close" size={20} color="#ef4444" />
               </TouchableOpacity>
             </View>
           )}
 
-          {/* Email input */}
-          <Input
-            label="Email"
-            placeholder="Enter your email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            icon="mail-outline"
-            required
-          />
-
-          {/* Password input */}
-          <View className="mb-6">
-            <Text className="text-sm font-medium text-gray-700 mb-1.5">
-              Password<Text className="text-red-500"> *</Text>
-            </Text>
-            <View className="relative">
-              <View className="absolute left-3 top-0 bottom-0 justify-center z-10">
-                <Ionicons name="lock-closed-outline" size={18} color="#9ca3af" />
-              </View>
-              <View className="flex-row items-center bg-white border border-gray-200 rounded-xl">
-                <View className="flex-1">
-                  <Input
-                    placeholder="Enter your password"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry={!showPassword}
-                    containerClassName="mb-0"
-                    className="border-0 pl-10"
-                  />
-                </View>
-                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} className="px-3">
-                  <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={20} color="#9ca3af" />
-                </TouchableOpacity>
-              </View>
+          {/* Email Input */}
+          <View style={{ marginBottom: 18 }}>
+            <Text style={{ fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 8 }}>Email Address</Text>
+            <View style={{ 
+              flexDirection: 'row', 
+              alignItems: 'center', 
+              borderWidth: 1.5, 
+              borderRadius: 16, 
+              paddingHorizontal: 16, 
+              backgroundColor: '#fff',
+              borderColor: emailFocused ? '#7c3aed' : '#e5e7eb',
+              height: 54
+            }}>
+              <Ionicons name="mail-outline" size={20} color={emailFocused ? '#7c3aed' : '#9ca3af'} />
+              <TextInput
+                style={{ 
+                  flex: 1, 
+                  fontSize: 15, 
+                  color: '#1f2937', 
+                  marginLeft: 12,
+                  padding: 0
+                }}
+                placeholder="your@email.com"
+                placeholderTextColor="#d1d5db"
+                value={email}
+                onChangeText={setEmail}
+                onFocus={() => setEmailFocused(true)}
+                onBlur={() => setEmailFocused(false)}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={true}
+              />
             </View>
           </View>
 
-          {/* Login button */}
-          <Button onPress={handleLogin} loading={loading} size="lg" className="shadow-md">
-            Sign In
-          </Button>
+          {/* Password Input */}
+          <View style={{ marginBottom: 24 }}>
+            <Text style={{ fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 8 }}>Password</Text>
+            <View style={{ 
+              flexDirection: 'row', 
+              alignItems: 'center', 
+              borderWidth: 1.5, 
+              borderRadius: 16, 
+              paddingHorizontal: 16, 
+              backgroundColor: '#fff',
+              borderColor: passwordFocused ? '#7c3aed' : '#e5e7eb',
+              height: 54
+            }}>
+              <Ionicons name="lock-closed-outline" size={20} color={passwordFocused ? '#7c3aed' : '#9ca3af'} />
+              <TextInput
+                style={{ 
+                  flex: 1, 
+                  fontSize: 15, 
+                  color: '#1f2937', 
+                  marginLeft: 12,
+                  padding: 0
+                }}
+                placeholder="Enter your password"
+                placeholderTextColor="#d1d5db"
+                value={password}
+                onChangeText={setPassword}
+                onFocus={() => setPasswordFocused(true)}
+                onBlur={() => setPasswordFocused(false)}
+                secureTextEntry={!showPassword}
+                editable={true}
+              />
+              <TouchableOpacity 
+                onPress={() => setShowPassword(!showPassword)}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              >
+                <Ionicons 
+                  name={showPassword ? 'eye' : 'eye-off'} 
+                  size={20} 
+                  color={passwordFocused ? '#7c3aed' : '#9ca3af'} 
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
 
-          {/* Info */}
-          <View className="mt-6 items-center">
-            <Text className="text-xs text-gray-400 text-center">
-              For Parents & Teachers only.{'\n'}Contact admin for account setup.
+          {/* Sign In Button */}
+          <TouchableOpacity
+            onPress={handleLogin}
+            disabled={loading}
+            activeOpacity={0.85}
+            style={{ 
+              backgroundColor: loading ? '#d8b4fe' : '#7c3aed', 
+              borderRadius: 16, 
+              height: 54,
+              alignItems: 'center', 
+              justifyContent: 'center',
+              flexDirection: 'row',
+              shadowColor: '#7c3aed', 
+              shadowOpacity: 0.35, 
+              shadowRadius: 10, 
+              shadowOffset: { width: 0, height: 4 },
+              elevation: 5
+            }}
+          >
+            {loading ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="sync" size={18} color="#fff" style={{ marginRight: 8 }} />
+                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>Signing in...</Text>
+              </View>
+            ) : (
+              <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>Sign In</Text>
+            )}
+          </TouchableOpacity>
+
+          {/* Info Text */}
+          <View style={{ marginTop: 28, paddingHorizontal: 12 }}>
+            <Text style={{ textAlign: 'center', fontSize: 12, color: '#6b7280', lineHeight: 18 }}>
+              For Parents & Teachers only. Contact admin for account access.
             </Text>
           </View>
         </View>
-      </KeyboardAvoidingView>
+      </ScrollView>
     </SafeAreaView>
   );
 }

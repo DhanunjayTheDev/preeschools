@@ -49,11 +49,11 @@ function ParentHomeNavigator() {
   return (
     <ParentHomeStack.Navigator screenOptions={screenOptions}>
       <ParentHomeStack.Screen name="ParentHome" component={ParentHomeScreen} options={{ headerShown: false }} />
-      <ParentHomeStack.Screen name="ChildDetail" component={ChildDetailScreen} options={{ title: 'Child Details' }} />
-      <ParentHomeStack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notifications' }} />
-      <ParentHomeStack.Screen name="ParentAnnouncements" component={ParentAnnouncementsScreen} options={{ title: 'Announcements' }} />
-      <ParentHomeStack.Screen name="AnnouncementDetail" component={AnnouncementDetailScreen} options={{ title: 'Announcement' }} />
-      <ParentHomeStack.Screen name="ActivityDetail" component={ActivityDetailScreen} options={{ title: 'Activity' }} />
+      <ParentHomeStack.Screen name="ChildDetail" component={ChildDetailScreen} options={{ headerShown: false }} />
+      <ParentHomeStack.Screen name="Notifications" component={NotificationsScreen} options={{ headerShown: false }} />
+      <ParentHomeStack.Screen name="ParentAnnouncements" component={ParentAnnouncementsScreen} options={{ headerShown: false }} />
+      <ParentHomeStack.Screen name="AnnouncementDetail" component={AnnouncementDetailScreen} options={{ headerShown: false }} />
+      <ParentHomeStack.Screen name="ActivityDetail" component={ActivityDetailScreen} options={{ headerShown: false }} />
     </ParentHomeStack.Navigator>
   );
 }
@@ -91,7 +91,7 @@ const ParentProfileStack = createNativeStackNavigator();
 function ParentProfileNavigator() {
   return (
     <ParentProfileStack.Navigator screenOptions={screenOptions}>
-      <ParentProfileStack.Screen name="ProfileMain" component={ProfileScreen} options={{ title: 'My Profile' }} />
+      <ParentProfileStack.Screen name="ProfileMain" component={ProfileScreen} options={{ headerShown: false }} />
     </ParentProfileStack.Navigator>
   );
 }
@@ -140,11 +140,11 @@ function TeacherHomeNavigator() {
   return (
     <TeacherHomeStack.Navigator screenOptions={screenOptions}>
       <TeacherHomeStack.Screen name="TeacherHome" component={TeacherHomeScreen} options={{ headerShown: false }} />
-      <TeacherHomeStack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notifications' }} />
-      <TeacherHomeStack.Screen name="TeacherAnnouncements" component={ParentAnnouncementsScreen} options={{ title: 'Announcements' }} />
-      <TeacherHomeStack.Screen name="AnnouncementDetail" component={AnnouncementDetailScreen} options={{ title: 'Announcement' }} />
-      <TeacherHomeStack.Screen name="ActivityDetail" component={ActivityDetailScreen} options={{ title: 'Activity' }} />
-      <TeacherHomeStack.Screen name="StudentDetail" component={StudentDetailScreen} options={{ title: 'Student Details' }} />
+      <TeacherHomeStack.Screen name="Notifications" component={NotificationsScreen} options={{ headerShown: false }} />
+      <TeacherHomeStack.Screen name="TeacherAnnouncements" component={ParentAnnouncementsScreen} options={{ headerShown: false }} />
+      <TeacherHomeStack.Screen name="AnnouncementDetail" component={AnnouncementDetailScreen} options={{ headerShown: false }} />
+      <TeacherHomeStack.Screen name="ActivityDetail" component={ActivityDetailScreen} options={{ headerShown: false }} />
+      <TeacherHomeStack.Screen name="StudentDetail" component={StudentDetailScreen} options={{ headerShown: false }} />
     </TeacherHomeStack.Navigator>
   );
 }
@@ -154,8 +154,8 @@ function TeacherActivitiesNavigator() {
   return (
     <TeacherActivitiesStack.Navigator screenOptions={screenOptions}>
       <TeacherActivitiesStack.Screen name="TeacherActivitiesMain" component={TeacherActivitiesScreen} options={{ headerShown: false }} />
-      <TeacherActivitiesStack.Screen name="CreateActivity" component={CreateActivityScreen} options={{ title: 'New Activity' }} />
-      <TeacherActivitiesStack.Screen name="ActivityDetail" component={ActivityDetailScreen} options={{ title: 'Activity' }} />
+      <TeacherActivitiesStack.Screen name="CreateActivity" component={CreateActivityScreen} options={{ headerShown: false }} />
+      <TeacherActivitiesStack.Screen name="ActivityDetail" component={ActivityDetailScreen} options={{ headerShown: false }} />
     </TeacherActivitiesStack.Navigator>
   );
 }
@@ -165,7 +165,7 @@ function TeacherStudentsNavigator() {
   return (
     <TeacherStudentsStack.Navigator screenOptions={screenOptions}>
       <TeacherStudentsStack.Screen name="TeacherStudentsMain" component={TeacherStudentsScreen} options={{ headerShown: false }} />
-      <TeacherStudentsStack.Screen name="StudentDetail" component={StudentDetailScreen} options={{ title: 'Student Details' }} />
+      <TeacherStudentsStack.Screen name="StudentDetail" component={StudentDetailScreen} options={{ headerShown: false }} />
     </TeacherStudentsStack.Navigator>
   );
 }
@@ -183,7 +183,7 @@ const TeacherProfileStack = createNativeStackNavigator();
 function TeacherProfileNavigator() {
   return (
     <TeacherProfileStack.Navigator screenOptions={screenOptions}>
-      <TeacherProfileStack.Screen name="ProfileMain" component={ProfileScreen} options={{ title: 'My Profile' }} />
+      <TeacherProfileStack.Screen name="ProfileMain" component={ProfileScreen} options={{ headerShown: false }} />
     </TeacherProfileStack.Navigator>
   );
 }

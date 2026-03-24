@@ -1,26 +1,19 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, RefreshControl, StatusBar, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, Card, Badge, LoadingScreen, EmptyState } from '../../components/ui';
 import api from '../../lib/api';
 
-const typeColors = {
-  GENERAL: 'default',
-  ACADEMIC: 'primary',
-  EVENT: 'info',
-  HOLIDAY: 'success',
-  EMERGENCY: 'danger',
+const typeConfig = {
+  GENERAL: { icon: 'megaphone', color: '#7c3aed', bg: '#ede9fe' },
+  ACADEMIC: { icon: 'school', color: '#2563eb', bg: '#dbeafe' },
+  EVENT: { icon: 'calendar', color: '#2563eb', bg: '#dbeafe' },
+  HOLIDAY: { icon: 'sunny', color: '#f59e0b', bg: '#fef3c7' },
+  EMERGENCY: { icon: 'warning', color: '#ef4444', bg: '#fee2e2' },
 };
 
-const typeIcons = {
-  GENERAL: 'information-circle',
-  ACADEMIC: 'school',
-  EVENT: 'calendar',
-  HOLIDAY: 'sunny',
-  EMERGENCY: 'warning',
-};
-
-export default function AnnouncementsScreen({ navigation }) {
+export default function AnnouncementsScreen({ navigation, route }) {
+  const canGoBack = navigation.canGoBack();
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -38,43 +31,107 @@ export default function AnnouncementsScreen({ navigation }) {
   }, []);
 
   useEffect(() => { fetchAnnouncements(); }, [fetchAnnouncements]);
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    fetchAnnouncements();
-  }, [fetchAnnouncements]);
-
-  if (loading) return <LoadingScreen />;
+  const onRefresh = useCallback(() => { setRefreshing(true); fetchAnnouncements(); }, [fetchAnnouncements]);
 
   return (
-    <Screen scroll refreshing={refreshing} onRefresh={onRefresh}>
-      <View className="px-5 pt-4 pb-6">
-        <Text className="text-2xl font-bold text-gray-900 mb-4">Announcements</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#7c3aed' }} edges={['top']}>
+      <StatusBar barStyle="light-content" backgroundColor="#7c3aed" />
 
-        {announcements.length === 0 ? (
-          <EmptyState icon="megaphone-outline" title="No Announcements" message="No announcements at this time" />
-        ) : (
-          announcements.map((item) => (
-            <Card key={item._id} className="mb-3" onPress={() => navigation.navigate('AnnouncementDetail', { announcement: item })}>
-              <View className="flex-row items-start">
-                <View className="w-10 h-10 rounded-xl bg-orange-50 items-center justify-center mr-3">
-                  <Ionicons name={typeIcons[item.type] || 'information-circle'} size={20} color="#ea580c" />
-                </View>
-                <View className="flex-1">
-                  <View className="flex-row items-center justify-between mb-1">
-                    <Text className="text-sm font-semibold text-gray-900 flex-1 mr-2" numberOfLines={1}>{item.title}</Text>
-                    <Badge variant={typeColors[item.type] || 'default'}>{item.type}</Badge>
-                  </View>
-                  <Text className="text-xs text-gray-600" numberOfLines={3}>{item.content}</Text>
-                  <Text className="text-[10px] text-gray-400 mt-2">
-                    {new Date(item.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                  </Text>
-                </View>
-              </View>
-            </Card>
-          ))
-        )}
+      {/* Hero Header */}
+      <View style={{ backgroundColor: '#7c3aed', paddingHorizontal: 20, paddingTop: 24, paddingBottom: 32, overflow: 'hidden' }}>
+        <View style={{ position: 'absolute', top: -30, right: -30, width: 160, height: 160, borderRadius: 80, backgroundColor: 'rgba(255,255,255,0.07)' }} />
+        <View style={{ position: 'absolute', bottom: -20, left: -40, width: 140, height: 140, borderRadius: 70, backgroundColor: 'rgba(255,255,255,0.05)' }} />
+        
+        <View style={{ position: 'relative', zIndex: 1 }}>
+          {canGoBack && (
+            <TouchableOpacity onPress={() => navigation.goBack()} style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
+              <Ionicons name="arrow-back" size={22} color="#fff" />
+            </TouchableOpacity>
+          )}
+          <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', fontWeight: '500', letterSpacing: 0.5, textTransform: 'uppercase' }}>School Updates</Text>
+          <Text style={{ fontSize: 28, fontWeight: '800', color: '#fff', marginTop: 6 }}>Announcements</Text>
+          {announcements.length > 0 && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 12, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6, alignSelf: 'flex-start' }}>
+              <Ionicons name="list" size={14} color="#fff" style={{ marginRight: 6 }} />
+              <Text style={{ color: '#fff', fontSize: 12, fontWeight: '600' }}>{announcements.length} total</Text>
+            </View>
+          )}
+        </View>
       </View>
-    </Screen>
+
+      {/* Content */}
+      {loading ? (
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator size="large" color="#7c3aed" />
+        </View>
+      ) : (
+        <ScrollView
+          style={{ flex: 1, backgroundColor: '#fafafa' }}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16 }}
+          showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#7c3aed" />}
+        >
+          {announcements.length === 0 ? (
+            <View style={{ alignItems: 'center', paddingTop: 80 }}>
+              <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: '#f3f4f6', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+                <Ionicons name="megaphone-outline" size={40} color="#9ca3af" />
+              </View>
+              <Text style={{ fontSize: 18, fontWeight: '700', color: '#1f2937', marginBottom: 6 }}>No Announcements</Text>
+              <Text style={{ fontSize: 13, color: '#9ca3af', textAlign: 'center' }}>No announcements available at this time. Check back soon!</Text>
+            </View>
+          ) : (
+            announcements.map((item, idx) => {
+              const tc = typeConfig[item.type] || typeConfig.GENERAL;
+              return (
+                <TouchableOpacity
+                  key={item._id}
+                  onPress={() => navigation.navigate('AnnouncementDetail', { announcement: item })}
+                  activeOpacity={0.7}
+                  style={{ 
+                    backgroundColor: '#fff', 
+                    borderRadius: 18, 
+                    padding: 16, 
+                    marginBottom: 12, 
+                    borderLeftWidth: 4,
+                    borderLeftColor: tc.color,
+                    shadowColor: '#000', 
+                    shadowOpacity: 0.05, 
+                    shadowRadius: 8, 
+                    shadowOffset: { width: 0, height: 2 }, 
+                    elevation: 2 
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+                    <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: tc.bg, alignItems: 'center', justifyContent: 'center', marginRight: 12, flexShrink: 0 }}>
+                      <Ionicons name={tc.icon} size={24} color={tc.color} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                        <Text style={{ fontSize: 15, fontWeight: '700', color: '#1f2937', flex: 1, marginRight: 8 }} numberOfLines={1}>{item.title}</Text>
+                        {idx === 0 && (
+                          <View style={{ backgroundColor: tc.color, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 }}>
+                            <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700', textTransform: 'uppercase' }}>New</Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text style={{ fontSize: 13, color: '#6b7280', lineHeight: 18 }} numberOfLines={3}>{item.message || item.content}</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
+                        <View style={{ backgroundColor: tc.bg, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
+                          <Text style={{ fontSize: 10, fontWeight: '700', color: tc.color, textTransform: 'uppercase', letterSpacing: 0.5 }}>{item.type}</Text>
+                        </View>
+                        <Text style={{ fontSize: 11, color: '#9ca3af', fontWeight: '500' }}>
+                          {new Date(item.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' })}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            })
+          )}
+          <View style={{ height: 20 }} />
+        </ScrollView>
+      )}
+    </SafeAreaView>
   );
 }
