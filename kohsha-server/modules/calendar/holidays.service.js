@@ -65,8 +65,17 @@ const fetchIndianHolidaysFromGoogle = async (year) => {
  */
 const getFormattedHolidays = async (year) => {
   const rawHolidays = await fetchIndianHolidaysFromGoogle(year);
-  
-  return rawHolidays.map((holiday) => ({
+
+  // Deduplicate holidays that share the same date timestamp (can occur with Google Calendar)
+  const seen = new Set();
+  const unique = rawHolidays.filter((holiday) => {
+    const key = `${holiday.date.getTime()}_${holiday.title}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return unique.map((holiday) => ({
     _id: `holiday_${year}_${holiday.date.getTime()}`,
     title: holiday.title,
     description: holiday.description,

@@ -22,8 +22,12 @@ export async function registerForPushNotifications() {
     return null;
   }
 
-  // Push notifications not supported in Expo Go from SDK 53+
-  if (Constants.appOwnership === 'expo') {
+  // Push notifications not supported in Expo Go (SDK 53+)
+  // Use executionEnvironment for SDK 54+ (appOwnership is deprecated)
+  const isExpoGo =
+    Constants.executionEnvironment === 'storeClient' ||
+    Constants.appOwnership === 'expo';
+  if (isExpoGo) {
     console.log('Push notifications not supported in Expo Go - use a development build');
     return null;
   }

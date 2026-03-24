@@ -95,10 +95,10 @@ export default function CalendarScreen() {
           Object.entries(grouped).map(([date, dayEvents]) => (
             <View key={date} className="mb-4">
               <Text className="text-xs font-bold text-gray-500 uppercase mb-2">{date}</Text>
-              {dayEvents.map((event) => {
+              {dayEvents.map((event, idx) => {
                 const color = typeColors[event.type] || '#6b7280';
                 return (
-                  <Card key={event._id} className="mb-2">
+                  <Card key={`${event._id ?? idx}_${idx}`} className="mb-2">
                     <View className="flex-row items-center">
                       <View className="w-1 h-10 rounded-full mr-3" style={{ backgroundColor: color }} />
                       <View className="w-9 h-9 rounded-lg items-center justify-center mr-3" style={{ backgroundColor: color + '15' }}>
