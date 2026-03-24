@@ -45,4 +45,37 @@ const changePassword = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, getProfile, updateProfile, changePassword };
+const savePushToken = async (req, res, next) => {
+  try {
+    const { pushToken, platform } = req.body;
+    if (!pushToken) return res.status(400).json({ message: 'Push token is required' });
+    const User = require('./user.model');
+    const user = await User.findById(req.user._id);
+    // Avoid duplicates
+    const exists = user.pushTokens?.some((t) => t.token === pushToken);
+    if (!exists) {
+      user.pushTokens = user.pushTokens || [];
+      user.pushTokens.push({ token: pushToken, platform: platform || 'android' });
+      await user.save();
+    }
+    res.json({ message: 'Push token saved' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const removePushToken = async (req, res, next) => {
+  try {
+    const { pushToken } = req.body;
+    if (!pushToken) return res.status(400).json({ message: 'Push token is required' });
+    const User = require('./user.model');
+    await User.findByIdAndUpdate(req.user._id, {
+      $pull: { pushTokens: { token: pushToken } },
+    });
+    res.json({ message: 'Push token removed' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { register, login, getProfile, updateProfile, changePassword, savePushToken, removePushToken };

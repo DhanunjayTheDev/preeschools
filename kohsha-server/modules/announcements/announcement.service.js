@@ -1,6 +1,7 @@
 const Announcement = require('./announcement.model');
 const User = require('../auth/user.model');
 const Notification = require('../notifications/notification.model');
+const { sendAnnouncementPush } = require('../notifications/push.service');
 const { AppError } = require('../../middleware/errorHandler');
 
 const createAnnouncement = async (data, userId) => {
@@ -41,6 +42,12 @@ const createAnnouncement = async (data, userId) => {
     console.log(`🔔 Creating ${notifications.length} notifications`);
     await Notification.insertMany(notifications);
     console.log('✅ Notifications created successfully');
+
+    // Send push notifications to mobile devices
+    const recipientIds = targetUsers.map((u) => u._id);
+    sendAnnouncementPush(announcement, recipientIds).catch((err) =>
+      console.error('Push notification error:', err)
+    );
   } else {
     console.warn('⚠️ No notifications created - no target users found!');
   }

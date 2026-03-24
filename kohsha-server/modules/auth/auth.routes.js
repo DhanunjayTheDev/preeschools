@@ -11,5 +11,7 @@ router.post('/login', validate(loginSchema), authController.login);
 router.get('/profile', authenticate, authController.getProfile);
 router.put('/profile', authenticate, authController.updateProfile);
 router.put('/change-password', authenticate, validate(changePasswordSchema), authController.changePassword);
+router.post('/push-token', authenticate, authController.savePushToken);
+router.delete('/push-token', authenticate, authController.removePushToken);
 
 module.exports = router;
